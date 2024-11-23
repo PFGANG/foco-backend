@@ -29,10 +29,8 @@
 config/initializers/secret_token.rb
 config/master.key
 
-config/credentials.yml.enc
 /.bundle
 /db/*.sqlite3
-config/database.yml
 config/google_analytics.yml
 .DS_Store
 /nbproject/

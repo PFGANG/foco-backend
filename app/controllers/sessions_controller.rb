@@ -1,17 +1,18 @@
 class SessionsController < ApplicationController
-  before_action :set_session, only: %i[ show update destroy ]
+  before_action :set_session, only: %i[ show ]
 
   def show
-    render json: @session
+    render json: @session, include: :creator
   end
 
   def create
-    @session = Session.new(session_params) # TODO: Create Participaition
+    @user = User.find_by(email: user_params[:email]) || User.create!(user_params)
+    @session = Session.create!(creator: @user, name: session_params[:name])
 
     if @session.save
-      render json: @session, status: :created, location: @session
+      render json: { session: @session, message: "Session created successfully" }, status: :created
     else
-      render json: @session.errors, status: :unprocessable_entity
+      render json: { errors: @session.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -20,7 +21,11 @@ class SessionsController < ApplicationController
       @session = Session.find(params[:id])
     end
 
+    def user_params
+      params.require(:user).permit(:name, :email)
+    end
+
     def session_params
-      params.fetch(:session, {})
+      params.require(:session).permit(:name)
     end
 end

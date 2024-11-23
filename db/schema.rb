@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_23_191436) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_23_220905) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -27,6 +27,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_23_191436) do
   create_table "sessions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "creator_id"
+    t.string "code"
+    t.string "name"
+    t.index ["code"], name: "index_sessions_on_code", unique: true
+    t.index ["creator_id"], name: "index_sessions_on_creator_id"
   end
 
   create_table "transcripts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -34,6 +39,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_23_191436) do
     t.uuid "session_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "partial"
     t.index ["session_id"], name: "index_transcripts_on_session_id"
   end
 
@@ -47,5 +53,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_23_191436) do
 
   add_foreign_key "participations", "sessions"
   add_foreign_key "participations", "users"
+  add_foreign_key "sessions", "users", column: "creator_id"
   add_foreign_key "transcripts", "sessions"
 end
